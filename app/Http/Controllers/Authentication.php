@@ -19,29 +19,39 @@ class Authentication extends Controller
 
 
 
-
+// TODO Utiliser jwt ou autre pour savoir quelle type utilisateur fait la requete 
 
 
         $email=$request->CompteEmail;
         $Password=$request->Password;
         $Accounts=DB::select('select * from utilisateurs where CompteEmail = ? and Password=?', [$email,$Password]);
         foreach($Accounts as $Account)
-        if($Account->IDRole==2){
-                return response()->json("commercial", 200);
+        if($Account->IDRole==1){
+            return response()->json("superAdmin", 200);
             }elseif($Account->IDRole==3){
-                return response()->json("magasin", 200);
-
-            }elseif($Account->IDRole==4){
-                return response()->json("comptoire", 200);
-
-            }elseif($Account->IDRole==5){
-                return response()->json("dev", 200);
-
-            }else{
-                return response()->json("superAdmin", 200);
-
+                $EmailMagasin=$Account->CompteEmail;
+                $PasswordMagasin=$Account->Password;
+                $AccountMagasins = DB::connection('mysql_second')->table('magasins')->select('*')
+                    ->where('email', $EmailMagasin)
+                    ->where('password', $PasswordMagasin)
+                    ->get();
+                foreach($AccountMagasins as $AccountMagasin)
+                return response()->json(['message'=> 'magasin' ,"account"=>$AccountMagasin], 200);
             }
+            $AccountCommercials = DB::connection('mysql_second')->table('commercials')
+                ->select('*')
+                ->where('email', $email)
+                ->where('password', $Password)
+                ->get();
+
+        if($AccountCommercials->isEmpty()){
             return response()->json("Il n'y a pas de compte avec ces informations", 200);
+        } else {
+                foreach($AccountCommercials as $AccountCommercial)
+        return response()->json(['message'=> 'commercial' ,"account"=>$AccountCommercial], 200);
+        }
+
+            
 
 
     }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Article extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'IdArticle'; 
     public $timestamps = false;
     protected $fillable = [
             'IdArticle' ,
@@ -17,6 +18,7 @@ class Article extends Model
             'NumArticle' ,
             'Designation',
             'Description', 
+            'Image',
             'DateCreation' ,
             'DateModification' ,
             'Unite',
@@ -27,7 +29,6 @@ class Article extends Model
             'StockMax',
             'PMP',
             'PrixMin',
-            'Image',
             'NomImage',
             'TypeImage',
             'PrixVenteArticleTTC',

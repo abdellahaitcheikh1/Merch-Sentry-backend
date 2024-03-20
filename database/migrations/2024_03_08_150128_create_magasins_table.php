@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('article_x_substitut', function (Blueprint $table) {
+        Schema::connection('mysql_second')->create('magasins', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('Id_Article')
-                ->constrained('articles', 'IdArticle')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-            $table->string('LibelleSubstitut');
+            $table->string('email');
+            $table->string('password');
+            $table->timestamps();
         });
     }
 
@@ -26,7 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('article_x_substitut');
-
+        Schema::dropIfExists('magasins');
     }
 };

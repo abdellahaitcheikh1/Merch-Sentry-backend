@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    // function add product 
+    // function add Article 
 
     public function AddArticle(request $request){
+
+        // TODO renomer les variables 
         $request->validate([
             'Designation' => 'required',
             'image' => 'required|image|mimes:jpeg,png,jpg',
@@ -30,8 +32,6 @@ class AdminController extends Controller
         $UniteArticle = $request->Unite;
         $StockArticle = $request->stock;
         $RefArticle = $request->RefArticle;
-
-
             Article::create([
                 'Designation'=>$NameArticle,
                 'Image'=>$ImageArticle,
@@ -44,30 +44,30 @@ class AdminController extends Controller
 
 
             ]);
+            // TODO if create ok add in historiques des operations 
         return response()->json(['message'=>'article added successfuly'], 200);
 }
 
-// function show all product 
+// function show all Article 
 
 public function GetArticle(){ 
-    $articles = DB::table('dataarticle')->take(5)->get();
+    $articles = DB::table('articles')->take(5)->get();
     return response()->json($articles, 200,);
 }
-// public function GetArticle(){ 
-//     $articles = DB::table('dataarticle')->take(5)->get();
-//     return response()->json($articles, 200,);
-// }
 
-// function show product by id 
+// function show Article by id 
 
 public function GetArticleById($id){
     $Article = DB::select("select * from articles where IdArticle = ?", [$id]);
+    $libelle = DB::select("select LibelleSubstitut from article_x_substitut where IdArticle = ?", [$id]);
+
     foreach($Article as $article)
 
-    return response()->json($article, 200);
+    return response()->json([$article,$libelle ],200);
 }
 
-// function update product 
+
+// function update Article 
 
 public function UpdateArticle($id){
     $Article = DB::select("select * from articles where IdArticle = ?", [$id]);
@@ -75,25 +75,50 @@ public function UpdateArticle($id){
     return response()->json($article, 200);
 }
 
-public function EditArticle(Request $request , Article $Article){
-    // $article->Designation = $request->Designation;
-    // $article->PrixVenteArticleTTC = $request->PrixVenteArticleTTC;
-    // $article->Description = $request->Description;
-    // $article->Unite = $request->Unite;
-    // $article->stock = $request->stock;
-    // $article->RefArticle= $request->RefArticle;
-    // if ($request->has('image')) {
-    //     $image = $request->file('image')->store('ArticleIMG', 'public');
-    //     $article->image = $image;
-    // }
-    // $article->save();
-    dd($request);
 
-    // return response()->json(['message'=>'article added successfuly'], 200);
+// function Edite Article 
+
+public function EditArticle(Request $request , $id){
+    $article = Article::find($id);
+    $validated_Artcile = $request->validate([
+        'Designation' => 'required',
+        'PrixVenteArticleTTC' => 'required',
+        'Description' => 'required',
+        'Unite' => 'required',
+        'stock' => 'required',
+        'RefArticle' => 'required',
+    ]);
+
+    $article->fill($validated_Artcile);
+
+    if ($request->hasFile('image')) {
+        $article->image = $request->file('image')->store('ArticleIMG', 'public');
+    }
+    $article->save();
+            // TODO if create ok add in historiques des operations 
+
+    return response()->json([
+        'message' => 'Article Updated successfully!',
+    ]);
 }
 
-// function delete product 
+// function delete Article 
+public function DeleteArticle($id){
+    
+    $Articles_deleting = DB::delete("DELETE from articles where IdArticle = ?", [$id]);
+    if($Articles_deleting){
+        
+        return response()->json([
+            'message'=>'The product has been successfully deleted'
+        ], 200);
+            // TODO if create ok add in historiques des operations 
 
+    }else{
+        return response()->json([
+            'message'=>'no product with this id '
+        ], 200);
+    }
+}
 
 }
 
